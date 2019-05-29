@@ -84,7 +84,7 @@ error_reporting(0);
 					header("location:index22.php?action=usuarios?usuarioD=1");
 				}
 				else if ($_POST["usuarioIngreso"] == "admin") {
-					header("location:index23.php?action=usuarios?usuarioD=2");
+					header("location:index22.php?action=usuarios?usuarioD=2");
 				}
 
 
