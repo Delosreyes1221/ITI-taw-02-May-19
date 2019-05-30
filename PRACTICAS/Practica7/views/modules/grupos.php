@@ -1,8 +1,8 @@
 
-<h1 class="text-center">ALUMNOS</h1>
+<h1 class="text-center">GRUPOS</h1>
 
 <div>
-	<a href="index.php?action=registro" class="btn btn-primary">AGREGAR ALUMNO</a>
+	<a href="index.php?action=registroGrupos" class="btn btn-primary">AGREGAR GRUPO</a>
 	<br><br>
 </div>
 
@@ -12,11 +12,11 @@
 
 		<thead>
 			<tr>
-				<th>Matricula</th>
-				<th>Nombre</th>
-				<th>Fecha de nacimiento</th>
+				<th>Numero de grupo</th>
+				<th>Nombre del grupo</th>
 				<th></th>
 				<th></th>
+        <th></th>
 			</tr>
 
 		</thead>
@@ -26,8 +26,8 @@
 			<?php
 
 			$vistaAlumnos = new MvcController();
-			$vistaAlumnos -> vistaAlumnosController();
-		  $vistaAlumnos -> borrarAlumnoController();
+			$vistaAlumnos -> vistaGruposController();
+		  $vistaAlumnos -> borrarGrupoController();
 
 			?>
 
@@ -40,7 +40,7 @@
 //VERIFICA ACTION DE CAMBIO
 if(isset($_GET["action"])){
 
-	if($_GET["action"] == "cambio"){
+	if($_GET["action"] == "cambioGrupo"){
 
 		echo "Cambio Exitoso";
 

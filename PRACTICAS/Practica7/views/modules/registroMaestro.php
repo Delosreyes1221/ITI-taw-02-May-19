@@ -1,5 +1,5 @@
 
-<h1 class="text-center">REGISTRO DE ALUMNOS</h1>
+<h1 class="text-center">REGISTRO DE MAESTROS</h1>
 <!-- VISTA DE REGISTRO DE USUARIOS CON INPUT DE REGISTRO DE USUARIOS -->
 <form method="post">
 	<div class="row-spacing float-center align-items-center">
@@ -23,7 +23,7 @@
 <!-- INPUT DE BOTON DE GUARDAR O ENVIAR -->
 	<div style="margin-left:30px" >
 		<input style="width:100px; height:30px;" type="submit" type="button" class="btn btn-success" value="Enviar">
-		<a style="float:right;" href="index.php?action=usuarios" class="btn btn-primary">REGRESAR</a>
+		<a style="float:right;" href="index.php?action=maestro" class="btn btn-primary">REGRESAR</a>
 	</div>
 </div>
 </form>
@@ -31,11 +31,11 @@
 <?php
 //LAMA AL MAETODO DE REGSITRO DE USUARIO NUEVO
 $registro = new MvcController();
-$registro -> registroAlumnoController();
+$registro -> registroMaestroController();
 
 if(isset($_GET["action"])){
 
-	if($_GET["action"] == "ok"){
+	if($_GET["action"] == "okMaestro"){
 
 		echo "Registro Exitoso";
 

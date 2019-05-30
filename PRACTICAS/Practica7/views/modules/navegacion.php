@@ -1,5 +1,5 @@
 <!-- NAV PARA HACER UN MENU DE NAVEGACION PARA LAS DIFERENTES VISTAS -->
-<nav>
+<!-- <nav>
 	<ul>
 		<li><a href="index.php">Registro</a></li>
 		<li><a href="index.php?action=ingresar">Ingreso</a></li>
@@ -10,4 +10,4 @@
 		<li><a href="index.php?action=registroVen">Registrar Venta</a></li>
 		<li><a href="index.php?action=ventas">Ventas</a></li>
 	</ul>
-</nav>
+</nav> -->

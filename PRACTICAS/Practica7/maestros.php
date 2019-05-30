@@ -1,5 +1,5 @@
 
-<h1 class="text-center">ALUMNOS</h1>
+<h1 class="text-center">MAESTROS</h1>
 
 <div>
 	<a href="index.php?action=registro" class="btn btn-primary">AGREGAR ALUMNO</a>
@@ -26,7 +26,7 @@
 			<?php
 
 			$vistaAlumnos = new MvcController();
-			$vistaAlumnos -> vistaAlumnosController();
+			$vistaAlumnos -> vistaMaestrosController();
 		  $vistaAlumnos -> borrarAlumnoController();
 
 			?>

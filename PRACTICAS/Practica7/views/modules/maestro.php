@@ -1,8 +1,8 @@
 
-<h1 class="text-center">ALUMNOS</h1>
+<h1 class="text-center">MAESTROS</h1>
 
 <div>
-	<a href="index.php?action=registro" class="btn btn-primary">AGREGAR ALUMNO</a>
+	<a href="index.php?action=registroMaestro" class="btn btn-primary">AGREGAR MAESTRO</a>
 	<br><br>
 </div>
 
@@ -26,8 +26,8 @@
 			<?php
 
 			$vistaAlumnos = new MvcController();
-			$vistaAlumnos -> vistaAlumnosController();
-		  $vistaAlumnos -> borrarAlumnoController();
+			$vistaAlumnos -> vistaMaestrosController();
+		  $vistaAlumnos -> borrarMaestroController();
 
 			?>
 
@@ -40,7 +40,7 @@
 //VERIFICA ACTION DE CAMBIO
 if(isset($_GET["action"])){
 
-	if($_GET["action"] == "cambio"){
+	if($_GET["action"] == "cambioMaestro"){
 
 		echo "Cambio Exitoso";
 

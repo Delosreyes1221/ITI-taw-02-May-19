@@ -49,14 +49,17 @@ require_once "controllers/controller.php";
                 <ul class="nav" id="main-menu">
 
                     <li>
-                        <a href="index.php?action=usuarios" ><i class="fas fa-layer-group "></i>GRUPOS <span class="badge"></span></a>
+                        <a href="index.php?action=grupos" ><i class="fas fa-layer-group "></i>GRUPOS <span class="badge"></span></a>
                     </li>
 
                     <li>
-                        <a href="#"><i class="fas fa-book "></i>MATERIAS  <span class="badge"></span></a>
+                        <a href="index.php?action=materias"><i class="fas fa-book "></i>MATERIAS  <span class="badge"></span></a>
                     </li>
                     <li>
                         <a href="index.php?action=usuarios"><i class="fas fa-user-friends "></i>ALUMNOS  <span class="badge"></span></a>
+                    </li>
+                    <li>
+                        <a href="index.php?action=maestro"><i class="fas fa-user-friends "></i>MAESTROS  <span class="badge"></span></a>
                     </li>
                 </ul>
           </div>
