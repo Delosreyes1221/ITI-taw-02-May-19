@@ -33,6 +33,122 @@ class Datos extends Conexion{
 		$stmt->close();
 	}
 
+///REGISTRAR UNA MATERIA EN UN GRUPO
+  public static function	registroMateriasGruposModel($datosModel, $tabla){
+		#prepare() Prepara una sentencia SQL para ser ejecutada por el método PDOStatement::execute(). La sentencia SQL puede contener cero o más marcadores de parámetros con nombre (:name) o signos de interrogación (?) por los cuales los valores reales serán sustituidos cuando la sentencia sea ejecutada. Ayuda a prevenir inyecciones SQL eliminando la necesidad de entrecomillar manualmente los parámetros.
+
+		//preparamos la conexion para ejecutar la sentencia sql
+		$stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (id_grupo, id_materia) VALUES (:id_grupo,:id_materia)");
+
+		#bindParam() Vincula una variable de PHP a un parámetro de sustitución con nombre o de signo de interrogación correspondiente de la sentencia SQL que fue usada para preparar la sentencia.
+
+		//vincula las variables para la sentencia
+		$stmt->bindParam(":id_grupo", $datosModel["id_grupo"], PDO::PARAM_STR);
+		$stmt->bindParam(":id_materia", $datosModel["id_materia"], PDO::PARAM_STR);
+
+
+		//ejecucion de la sentencia
+		if($stmt->execute()){
+			return "success";
+		}else{
+			return "error";
+		}
+		$stmt->close();
+	}
+
+	///REGISTRAR UN ALUMNO EN UNA MATERIA
+	  public static function	registroAlumnosMateriasModel($datosModel, $tabla){
+			#prepare() Prepara una sentencia SQL para ser ejecutada por el método PDOStatement::execute(). La sentencia SQL puede contener cero o más marcadores de parámetros con nombre (:name) o signos de interrogación (?) por los cuales los valores reales serán sustituidos cuando la sentencia sea ejecutada. Ayuda a prevenir inyecciones SQL eliminando la necesidad de entrecomillar manualmente los parámetros.
+
+			//preparamos la conexion para ejecutar la sentencia sql
+			$stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (id_materia, id_alumno) VALUES (:id_materia,:id_alumno)");
+
+			#bindParam() Vincula una variable de PHP a un parámetro de sustitución con nombre o de signo de interrogación correspondiente de la sentencia SQL que fue usada para preparar la sentencia.
+
+			//vincula las variables para la sentencia
+			$stmt->bindParam(":id_materia", $datosModel["id_materia"], PDO::PARAM_STR);
+			$stmt->bindParam(":id_alumno", $datosModel["id_alumno"], PDO::PARAM_STR);
+
+
+			//ejecucion de la sentencia
+			if($stmt->execute()){
+				return "success";
+			}else{
+				return "error";
+			}
+			$stmt->close();
+		}
+
+		#PERMITE REALIZAR UNA VISTA PARA TUTORIAS
+#-------------------------------------
+public static function vistaTutoriasModel($tabla){
+
+	$stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla");
+	$stmt->execute();
+
+	return $stmt->fetchAll();
+
+	$stmt->close();
+
+}
+
+#VISTA DE LAS TUTORIAS POR NIVEL
+#-------------------------------------
+#Muestra solo las tutorias que ha hecho el empleado, con el numero de maestro ingresado
+public function vistaTutoriasNivelModel($tabla, $id){
+
+	$stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla where num_maestro=:num_maestro");
+	$stmt->bindParam(":num_maestro", $id, PDO::PARAM_STR);
+	$stmt->execute();
+
+	return $stmt->fetchAll();
+
+	$stmt->close();
+
+}
+
+#BORRAR ALUMNOS TUTORIAS
+#-------------------------------------
+public function borrarAlumnosTutoriaModel($datosModel, $tabla){
+	$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_sesion = :id");
+	$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+
+	if($stmt->execute())
+		return "success";
+	else
+		return "error";
+
+	$stmt->close();
+}
+
+#OBTENER ALUMNOS
+	#-------------------------------------
+	#Obtiene las alumnos de toda la tabla
+	public static function obtenerAlumnosModel($tabla){
+		$stmt = Conexion::conectar()->prepare("SELECT matricula, nombre FROM $tabla");
+		$stmt->execute();
+
+		return $stmt->fetchAll();
+	}
+
+	#BORRAR DE LAS TUTORIAS
+	#-------------------------------------
+	public function borrarTutoriaModel($datosModel, $tabla){
+		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id = :id");
+		$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+
+		if($stmt->execute())
+			return "success";
+		else
+			return "error";
+
+		$stmt->close();
+
+	}
+
+
+
+
 
 	#REGISTRO DE MAESTROS
 	#-------------------------------------
@@ -208,7 +324,25 @@ class Datos extends Conexion{
 
 	public static function actualizarAlumnoModel($datosModel, $tabla){
 		//PREPARA PARA ACTUALIZAR LOS DATOS DE UN REGISTRO DE LA TABLA USUARIOS
-		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET nombre = :nombre, matricula = :matricula, fecha = :fecha WHERE id_alumno = :id");
+		$stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (id_grupo, id_materia) VALUES (:id_grupo,:id_materia)");
+		//asigna a los valores a las variables
+		$stmt->bindParam(":id_grupo", $datosModel["id_grupo"], PDO::PARAM_STR);
+		$stmt->bindParam(":id_materia", $datosModel["id_materia"], PDO::PARAM_STR);
+
+		if($stmt->execute()){
+			return "success";
+		}
+		else{
+			return "error";
+		}
+	}
+
+	#ACTUALIZAR MATERIAS DEL grupo
+	#-------------------------------------
+
+	public static function actualizarMateriaGrupoModel($datosModel, $tabla){
+		//PREPARA PARA ACTUALIZAR LOS DATOS DE UN REGISTRO DE LA TABLA USUARIOS
+		$stmt = Conexion::conectar()->prepare("INSERT $tabla SET nombre = :nombre, matricula = :matricula, fecha = :fecha WHERE id_alumno = :id");
 		//asigna a los valores a las variables
 		$stmt->bindParam(":nombre", $datosModel["nombre"], PDO::PARAM_STR);
 		$stmt->bindParam(":matricula", $datosModel["matricula"], PDO::PARAM_STR);
@@ -320,6 +454,24 @@ class Datos extends Conexion{
 
 	}
 
+	#BORRAR MATERIA DEL GRUPO
+	#------------------------------------
+	public static function borrarAlumnoMateriaModel($datosModel, $tabla){
+		//PREPARA SENTENCIA PARA BORRAR REGISTRO DE USUARIO
+		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id = :id");
+		$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+
+		if($stmt->execute()){
+			return "success";
+		}
+		else{
+			return "error";
+		}
+
+		$stmt->close();
+
+	}
+
 	#BORRAR MAESTROS
 	#------------------------------------
 	public static function borrarMaestroModel($datosModel, $tabla){
@@ -400,6 +552,30 @@ class Datos extends Conexion{
 		$stmt->close();
 	}
 
+		# REGISTRO DE MATERIAS EN LOS GRUPOS
+		#-------------------------------------
+		public static function registroMateriasenGrupoModel($id_grupo,$id_materia, $tabla){
+
+			#prepare() Prepara una sentencia SQL para ser ejecutada por el método PDOStatement::execute(). La sentencia SQL puede contener cero o más marcadores de parámetros con nombre (:name) o signos de interrogación (?) por los cuales los valores reales serán sustituidos cuando la sentencia sea ejecutada. Ayuda a prevenir inyecciones SQL eliminando la necesidad de entrecomillar manualmente los parámetros.
+
+			//preparamos la conexion para ejecutar la sentencia sql
+			$stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (id_grupo, id_materia) VALUES (:id_grupo, :id_materia)");
+
+			#bindParam() Vincula una variable de PHP a un parámetro de sustitución con nombre o de signo de interrogación correspondiente de la sentencia SQL que fue usada para preparar la sentencia.
+
+			//vincula las variables para la sentencia
+			$stmt->bindParam(":id_grupo", $id_grupo, PDO::PARAM_STR);
+			$stmt->bindParam(":id_materia", $id_materia, PDO::PARAM_STR);
+
+			//ejecucion de la sentencia
+			if($stmt->execute()){
+				return "success";
+			}else{
+				return "error";
+			}
+			$stmt->close();
+		}
+
 		#VISTA DE PROESORES PARA MOSTRAR EN LAS MTERIAS
 	#-------------------------------------
 
@@ -421,7 +597,22 @@ class Datos extends Conexion{
 
 public static function vistaMateriasGruposModel($datosModel, $tabla){
 	//PREPARAMOS LA SENTENCIA PARA VER LOS PRODUCTOS
-	$stmt = Conexion::conectar()->prepare("SELECT gm.id, ma.nombre FROM $tabla gm INNER JOIN materias ma ON gm.id_materia = :id");
+	$stmt = Conexion::conectar()->prepare("SELECT gm.id, ma.nombre FROM $tabla gm INNER JOIN materias ma ON gm.id_materia = ma.id_materia WHERE gm.id_grupo = :id");
+	//EJECUTAR SENTENCIA
+
+	$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+	$stmt->execute();
+
+	#fetchAll(): Obtiene todas las filas de un conjunto de resultados asociado al objeto PDOStatement.
+	return $stmt->fetchAll();
+
+	$stmt->close();
+
+}
+
+public static function vistaAlumnosMateriasModel($datosModel, $tabla){
+	//PREPARAMOS LA SENTENCIA PARA VER LOS PRODUCTOS
+	$stmt = Conexion::conectar()->prepare("SELECT ma.id, a.nombre FROM $tabla ma INNER JOIN alumnos a ON ma.id_alumno = a.id_alumno WHERE ma.id_materia = :id");
 	//EJECUTAR SENTENCIA
 
 	$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);

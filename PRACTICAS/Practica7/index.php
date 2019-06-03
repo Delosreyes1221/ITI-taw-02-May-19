@@ -23,6 +23,19 @@ require_once "controllers/controller.php";
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 
+    <script type="text/javascript">
+		var hola;
+				function agregarMateria(id){
+					var idMateria = id;
+					document.getElementById("auxiliar").value = idMateria;
+					hola = idMateria;
+					alert(hola);
+
+
+
+				}
+		</script>
+
 
      <!-- GOOGLE FONTS-->
    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
@@ -61,6 +74,9 @@ require_once "controllers/controller.php";
                     <li>
                         <a href="index.php?action=maestro"><i class="fas fa-user-friends "></i>MAESTROS  <span class="badge"></span></a>
                     </li>
+                    <li>
+                        <a href="index.php?action=tutorias"><i class="fas fa-user-friends "></i>TUTORIAS  <span class="badge"></span></a>
+                    </li>
                 </ul>
           </div>
 
@@ -77,7 +93,7 @@ require_once "controllers/controller.php";
 
 
 
-            <div class="row-fluid col-lg-12" style="border:solid;">
+            <div class="row-fluid col-lg-12" >
                 <?php
                 //OBJETO DE CONTROLADOR
                 $mvc = new MvcController();

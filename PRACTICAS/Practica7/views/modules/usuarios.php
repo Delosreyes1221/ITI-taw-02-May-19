@@ -12,8 +12,8 @@
 
 		<thead>
 			<tr>
-				<th>Matricula</th>
 				<th>Nombre</th>
+				<th>Matricula</th>
 				<th>Fecha de nacimiento</th>
 				<th></th>
 				<th></th>

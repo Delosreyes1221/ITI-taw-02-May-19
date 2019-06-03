@@ -5,10 +5,28 @@ class Paginas{
 	public static function enlacesPaginasModel($enlaces){
 
 		//VERIFICA LA CONDICION PARA EN CASO DE SER UNO DE LOS ENLACES MARCADOS AQUI SE DIRIJA A ESA VISTA
-		if($enlaces == "ingresar" || $enlaces == "usuarios" || $enlaces == "editar" || $enlaces == "salir" || $enlaces == "materias" ||
-			$enlaces == "registroMateria" || $enlaces == "editarMateria" || $enlaces == "grupos" ||
-		$enlaces == "registroVen" || $enlaces == "maestro" ||$enlaces == "editarVen" || $enlaces == "editarGrupos" || $enlaces == "registroGrupos" ||
-		$enlaces == "registroMaestro" || $enlaces == "editarMaestros" || $enlaces == "materiasdeGrupos"){
+		if($enlaces == "ingresar"
+		|| $enlaces == "usuarios"
+		|| $enlaces == "editar" 
+		|| $enlaces == "salir"
+		|| $enlaces == "materias"
+		|| $enlaces == "registroMateria"
+		|| $enlaces == "editarMateria"
+		|| $enlaces == "grupos"
+		|| $enlaces == "registroVen"
+	  || $enlaces == "maestro"
+		|| $enlaces == "editarVen"
+		|| $enlaces == "editarGrupos"
+		|| $enlaces == "registroGrupos"
+		|| $enlaces == "registroMaestro"
+		|| $enlaces == "editarMaestros"
+		|| $enlaces == "materiasdeGrupos"
+		|| $enlaces == "agregarMateriaGrupo"
+		|| $enlaces == "verMateriasGrupos"
+		|| $enlaces == "verAlumnosMaterias"
+		|| $enlaces == "agregarAlumnosMaterias"
+		|| $enlaces == "tutorias"
+		|| $enlaces == "registro_tutoria"){
 			//ASIGNA EL VALOR DE LA VISTA A LA QUE TIENE VALOR
 			$module =  "views/modules/".$enlaces.".php";
 
@@ -23,6 +41,12 @@ class Paginas{
 		else if($enlaces == "ok"){
 
 			$module =  "views/modules/registro.php";
+
+		}
+
+		else if($enlaces == "okGrupos"){
+
+			$module =  "views/modules/grupos.php";
 
 		}
 		else if($enlaces == "okMaestros"){
@@ -40,6 +64,13 @@ class Paginas{
 		else if($enlaces == "okGrupos"){
 
 			$module =  "views/modules/registroGrupos.php";
+
+		}
+
+		//CORRECTO REGISTRO DE VENTA
+		else if($enlaces == "okAlumnos"){
+
+			$module =  "views/modules/materias.php";
 
 		}
 		//FALLO AL INICIAR SESION

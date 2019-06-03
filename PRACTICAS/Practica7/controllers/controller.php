@@ -59,6 +59,8 @@ class MvcController{
 		}
 	}
 
+
+
 	#REGISTRO DE MAESTROS
 	#------------------------------------
 	public function registroMaestroController(){
@@ -96,6 +98,7 @@ class MvcController{
 			$datosController = array( "nombre"=>$_POST["nombreIngreso"],
 											"id_maestro"=>$_POST["nombreProfesor"]);
 			//PASA POR PARAMETRO LOS DATOS Y LA TABLA QUE SE DESEA HACER EL REGISTRO DE LOS DATOS
+
 			$respuesta = Datos::registroMateriaModel($datosController, "materias");
 			//VERIFICA QUE SEA CORRECTO
 			if($respuesta == "success"){
@@ -202,14 +205,198 @@ class MvcController{
 				<td>'.$item["id_materia"].'</td>
 				<td>'.$item["nombre"].'</td>
 				<td>'.$item["id_maestro"].'</td>
-				<td align="center" ><a href="index.php?action=alumnos&id='.$item["id_materia"].'"><button type="button" class="btn btn-info">Ver alumnos</button></a></td>
+				<td align="center" ><a href="index.php?action=verAlumnosMaterias&id='.$item["id_materia"].'"><button type="button" class="btn btn-info">Ver alumnos</button></a></td>
+				<td align="center" ><a href="index.php?action=agregarAlumnosMaterias&id='.$item["id_materia"].'"><button type="button" class="btn btn-info">Agregar alumnos</button></a></td>
 				<td align="center" ><a href="index.php?action=editarMateria&id='.$item["id_materia"].'"><button type="button" class="btn btn-info">Editar</button></a></td>
 				<td align="center" ><a href="index.php?action=materias&idBorrar='.$item["id_materia"].'"><button type="button" class="btn btn-danger">Borrar</button></a></td>
+
 			</tr>';
 
 		}
 
 	}
+
+	#REGISTRO BASE DE TUTORIAS
+	#------------------------------------
+	#Genera la interfaz base para el registro de las tutorias
+	public function registroBaseTutoriaController(){
+		if($_COOKIE['nivel']==1)
+			$respuesta_alumnos = Datos::obtenerAlumnosModel("alumnos");
+		else
+			$respuesta_alumnos = Datos::obtenerAlumnosNivelModel("alumnos",$_SESSION['num_empleado']);
+
+		$st_alumnos="";
+		for($i=0;$i<sizeof($respuesta_alumnos);$i++)
+			$st_alumnos=$st_alumnos."<option value='".$respuesta_alumnos[$i]['matricula']."'>".$respuesta_alumnos[$i]['nombre']."</option>";
+
+
+		echo'
+			<input type="hidden" id="hid" name="hid"></input>
+			<table>
+				<tr>
+					<td>
+						<h4>Detalles en la tutoria</h4>
+						
+						<label for="fecha">Fecha:</label>
+						<input type="date" name="fecha" required>
+						<label for="hora">Hora:</label>
+						<input type="time" name="hora" required>
+						<label for="tipo">Tipo:</label>
+						<select name="tipo" required>
+							<option value="Grupal">Grupal</option>
+							<option value="Individual">Individual</option>
+						 </select>
+						<label for="Tema">Tema:</label>
+						<input type="text" name="tema" required>
+						<button class="small success" onclick="sendData();" type="submit">Registrar</button>
+
+					</td>
+					<td>
+						<h4>Alumnos en la tutoria</h4>
+						<table>
+							<tr>
+								<td>
+								 <label for="alumno">Nombre del Alumno:</label>
+								 <select name="alumno" class="js-example-basic-multiple" id="alumno">
+								 	'.$st_alumnos.'
+								 </select>
+								 <br><br>
+							</td>
+							 <td>
+							 	<button type="button" class="small success" onclick="addAlumno()">Agregar Alumno</button>
+							 </td>
+						</tr>
+						<table>
+						<table id="alumnos"></table>
+					</td>
+				</tr>
+			</table>';
+
+		echo'<script>
+				$(document).ready(function() {
+					$(".js-example-basic-multiple").select2();
+				});
+
+				var alumnos=[];
+				var send_alumnos=[];
+				var tab = document.getElementById("alumnos");
+
+				function updateTable(){
+					tab.innerHTML="<tr><th>Matricula</th><th>Nombre</th><th>¿Eliminar?</th><tr>";
+					for(var i=0;i<alumnos.length;i++){
+						tab.innerHTML=tab.innerHTML+"<tr><td>"+alumnos[i][0]+"</td><td>"+alumnos[i][1]+"</td><td><button class=\'alert\' type=\'button\' onclick=\'deleteAlumno("+i+");\'>Eliminar</button></td><tr>";
+					}
+				}
+
+				function addAlumno(){
+
+					var select = document.getElementById("alumno");
+					var flag=false;
+					for(var i=0;i<alumnos.length;i++){
+						if(alumnos[i][0]==select.options[select.selectedIndex].value && alumnos[i][1]==select.options[select.selectedIndex].text){
+							flag=true;
+							break;
+						}
+					}
+
+					if(!flag){
+						alumnos.push([select.options[select.selectedIndex].value,select.options[select.selectedIndex].text]);
+						send_alumnos.push([select.options[select.selectedIndex].value]);
+						updateTable();
+					}else{
+						alert("Alumno ya Agregado");
+					}
+				}
+
+				function deleteAlumno(index){
+					alumnos.splice(index, 1);
+					send_alumnos.splice(index, 1);
+					updateTable();
+				}
+
+				function sendData(){
+					var hid = document.getElementById("hid");
+					hid.value=send_alumnos;
+				}
+
+			</script>';
+	}
+
+	#REGISTRAR TUTORIAS
+	#------------------------------------
+	#Permite el registro de una tutoria en la base de datos
+	public function registroTutoriaController(){
+		if(isset($_POST["fecha"])){
+			$datosController = array(
+								      "hora"=>$_POST["hora"],
+								      "fecha"=>$_POST["fecha"],
+								      "tema"=>$_POST["tema"],
+								      "tipo"=>$_POST["tipo"],
+								      "num_maestro"=>$_POST["num_maestro"]
+								  );
+
+			$respuesta = Datos::registroTutoriaModel($datosController, "sesion_tutoria");
+
+			if(isset($_POST['hid'])){
+				$data = $_POST['hid'];
+
+				$id_sesion = Datos::ObtenerLastTutoria("sesion_tutoria");
+
+				$respuesta = Datos::registroAlumnosTutoriaModel($data, $id_sesion[0], "sesion_alumnos");
+		  	}
+
+			if($respuesta == "success"){
+				header("location:index.php?action=ok_tutoria");
+			}
+			else{
+				header("location:index.php");
+			}
+
+		}
+
+	}
+
+
+
+	#REGISTRO TUTORIAS
+	#------------------------------------
+	#Genera la interfaz que muestra en una tabla todos los registros almacenados
+	public function vistaTutoriasController(){
+		if($_COOKIE['nivel']==1)
+			$respuesta = Datos::vistaTutoriasModel("sesion_tutoria");
+		else
+			$respuesta = Datos::vistaTutoriasNivelModel("sesion_tutoria",$_SESSION["num_empleado"]);
+		foreach($respuesta as $row => $item){
+		echo'<tr>
+				<td>'.$item["id"].'</td>
+				<td>'.$item["fecha"].'</td>
+				<td>'.$item["hora"].'</td>
+				<td>'.$item["tema"].'</td>
+				<td>'.$item["tipo"].'</td>
+				<td><a href="index.php?action=editar_tutoria&id='.$item["id"].'"><button class="small warning">Editar</button></a></td>
+				<td><a href="index.php?action=tutorias&idBorrar='.$item["id"].'"><button class="small alert">Borrar</button></a></td>
+			</tr>';
+		}
+	}
+
+
+
+	#BORRAR TUTORIAS
+#------------------------------------
+#Permite el eliminado de las tutorais llamando el modelo
+public function borrarTutoriaController(){
+
+	if(isset($_GET["idBorrar"])){
+		$datosController = $_GET["idBorrar"];
+		$respuesta = Datos::borrarAlumnosTutoriaModel($datosController, "sesion_alumnos");
+		$respuesta = Datos::borrarTutoriaModel($datosController, "sesion_tutoria");
+
+		if($respuesta == "success"){
+			header("location:index.php?action=tutorias");
+		}
+	}
+}
+
 
 	//VISTA DE LOS GRUPOS
 	public function vistaGruposController(){
@@ -223,7 +410,8 @@ class MvcController{
 		echo'<tr>
 				<td>'.$item["id_grupo"].'</td>
 				<td>'.$item["nombre"].'</td>
-				<td align="center" ><a href="index.php?action=materiasdeGrupos&id='.$item["id_grupo"].'"><button type="button" class="btn btn-info">Ver materias</button></a></td>
+				<td align="center" ><a href="index.php?action=verMateriasGrupos&id='.$item["id_grupo"].'"><button type="button" class="btn btn-info">Ver materias</button></a></td>
+				<td align="center" ><a href="index.php?action=agregarMateriaGrupo&id='.$item["id_grupo"].'"><button type="button" class="btn btn-info">Agregar Materias</button></a></td>
 				<td align="center" ><a href="index.php?action=editarGrupos&id='.$item["id_grupo"].'"><button type="button" class="btn btn-info">Editar</button></a></td>
 				<td align="center" ><a href="index.php?action=grupos&idBorrar='.$item["id_grupo"].'"><button type="button" class="btn btn-danger">Borrar</button></a></td>
 			</tr>';
@@ -564,7 +752,7 @@ class MvcController{
 		$respuesta = Datos::vistaProfesoresModel("maestros");
 		// SE MUESTRAN LOS PROFESORES AGREGADOS EN LA BASE DE DATOS
 		echo '<label class="labels">MAESTROS DISPONIBLES</label>';
-		echo '<select class="form-control" name="nombreProfesor">';
+		echo '<select class="form-control" name="nombreProfesor" required>';
 		foreach($respuesta as $row => $item){
 				echo '<option value="'.$item['id_maestro'].'">'.$item['nombre'].'</option>';
 		}
@@ -572,49 +760,91 @@ class MvcController{
 
 	}
 
+
 	#VISTA DE LAS MATERIAS PARA LOS GRUPOS
 	#------------------------------------
 	public function vistaMateriasGruposController(){
 		//SE RECIBE EL ID DEL GRUPO
 		$datosController = $_GET["id"];
-
+		$Id_grupo = $datosController;
 		$respuesta = Datos::vistaMateriasModel("materias");
-		// SE MUESTRAN LOS PROFESORES AGREGADOS EN LA BASE DE DATOS
 		$respuesta2 = Datos::vistaMateriasGruposModel($datosController,"grupo_materia");
+		// SE MUESTRAN LOS PROFESORES AGREGADOS EN LA BASE DE DATOS
+		///SELECT QUE MUESTRA LAS MATERIAS DISPONIBLES
 
-///SELECT QUE NOS MUESTRA LAS MATERIAS QUE EXISTEN
-			echo '<div class="row-spacing col-lg-5">';
-				echo '<label class="labels">MATERIAS DISPONIBLES</label>';
-				echo '<select class="form-control" name="nombreMateria">';
+		echo '<input type="text" hidden="true" name="idGrupo" value="'.$Id_grupo.'"></input>';
+
+		echo  '<div class="row-spacing col-lg-10">';
+			echo '<table class="table" name="materiasD">';
+				echo '<thead>';
+					echo '<th>MATERIAS DISPONIBLES</th>';
+				echo '</thead>';
 				foreach($respuesta as $row => $item){
-						echo '<option value="'.$item['id_materia'].'">'.$item['nombre'].'</option>';
+				echo'<tr>
+					<id hidden>'.$item['id_materia'].'</td>
+					<td>'.$item["nombre"].'</td>
+					<td><button type="button" onclick="agregarMateria('.$item['id_materia'].')" class="btn btn-danger">Agregar materia</button><td/>
+					</tr>';
 				}
-				echo '</select>';
-				echo '<br>';
 
-///BOTON PARA AGREGAR UNA MATERIA A UN GRUPO
-				echo '<div class="col-lg-12">';
-				echo '<div  class="col-lg-12" >
-					<input style="width:100px; float:left; height:40px;" type="submit" type="button" class="btn btn-success" value="Agregar">
-				</div>';
-				echo '</div>';
-		  echo '</div>';
+			echo '</table>';
+		echo '<div>';
 
-///TABLA QUE MUESTRA LAS MATERIAS QUE TIENE EL GRUPO
-			echo  '<div class="row-spacing col-lg-5">';
-				echo '<table class="table">';
-					echo '<thead>';
-					foreach($respuesta2 as $row => $item){
-					echo'<tr>
-							<td>'.$item["id"].'</td>
-							<td>'.$item["nombre"].'</td>
-							<td align="center" ><a href="index.php?action=usuarios&idBorrar='.$item["id"].'"><button type="button" class="btn btn-danger">Borrar</button></a></td>
-						</tr>';
+				// MATERIAS QUE TIENE EL GRUPO
+							echo  '<div class="row-spacing col-lg-10">';
+								echo '<table class="table">';
+									echo '<thead>';
 
-					}
-					echo '</thead>';
-				echo '</table>';
-			echo '<div>';
+										echo '<th>MATERIAS DEL GRUPO</th>';
+									echo '</thead>';
+									foreach($respuesta2 as $row => $item){
+									echo'<tr>
+											<td>'.$item["nombre"].'</td>
+											<td align="center" ><a href="index.php?action=usuarios&idBorrar='.$item["id"].'"><button type="button" class="btn btn-danger">Borrar</button></a></td>
+										</tr>';
+
+									}
+								echo '</table>';
+							echo '<div>';
+						echo '<input type="text" id="auxiliar" name="auxiliarr"></input>';
+
+
+///FUNCION DE JAVASCRIPT PARA GUARDAR EL VALOR CON UN BOTON
+
+
+		$materia_PHP = '<script>var hola = document.getElementById("auxiliar").value </script>';
+
+		$insertarMaterias = Datos::registroMateriasenGrupoModel($Id_grupo, 	$materia_PHP, "grupo_materia");
+
+		if ($insertarMaterias == "success") {
+			echo 'Ya quedo';
+		}
+		else {
+			echo 'No jala';
+		}
+	}
+
+
+	#ACTUALIZAR MATERIAS AL GRUPO
+	#------------------------------------
+	public function actualizarMateriaGrupoController(){
+
+		if(isset($_POST["nombreMateriaEditar"])){
+			//GUARDA VALORES EN EL ARRAY
+			$datosController = array( "id_grupo"=>$_POST["idGrupo"],
+												"id_materia"=>$_POST["nombreMateria"]);
+			//LLAMA AL METODO DE ACTUALIZAR PRODUCTO MODELO
+			$respuesta = Datos::actualizarMateriaGrupoModel($datosController, "grupo_materia");
+			//SI ES CORRECTO LLAMA AL ACTION CAMBIOPRO
+			if($respuesta == "success"){
+
+				header("location:index.php?action=cambioPro");
+			}
+			else{
+				echo "error";
+			}
+
+		}
 
 	}
 
@@ -685,6 +915,8 @@ class MvcController{
 
 	}
 
+
+
 	#BORRAR PRODUCTO
 	#------------------------------------
 	public function borrarProductoController(){
@@ -728,6 +960,57 @@ class MvcController{
 		}
 
 	}
+
+///registrar una materia en un grupo
+	public function registroMateriasGruposController(){
+
+		if(isset($_POST["materiasD"])){
+			//GUARDAR ARRAY CON LOS DATOS DE LA VENTA
+			$datosController = array( "id_grupo"=>$_POST['idGrupo'],
+								"id_materia"=>$_POST["materiasD"]);
+			//LLAMA METODO DE REGISTRO DE LA VENTA
+			$respuesta = Datos::registroMateriasGruposModel($datosController, "grupo_materia");
+			//SI ES CORRECTO LLAMA LA ACTION OKVEN DE ENLACES
+			if($respuesta == "success"){
+				error_reporting(0);
+				header("location:index.php?action=okGrupos");
+				error_reporting(0);
+			}
+			else{
+				error_reporting(0);
+				header("location:index.php");
+				error_reporting(0);
+			}
+
+		}
+
+	}
+
+
+	///registrar uin alumno en una materia
+		public function registroAlumnosMateriasController(){
+
+			if(isset($_POST["alumnosD"])){
+				//GUARDAR ARRAY CON LOS DATOS DE LA VENTA
+				$datosController = array( "id_materia"=>$_POST['idmateria'],
+									"id_alumno"=>$_POST["alumnosD"]);
+				//LLAMA METODO DE REGISTRO DE LA VENTA
+				$respuesta = Datos::registroAlumnosMateriasModel($datosController, "materia_alumno");
+				//SI ES CORRECTO LLAMA LA ACTION OKVEN DE ENLACES
+				if($respuesta == "success"){
+					error_reporting(0);
+					header("location:index.php?action=okAlumnos");
+					error_reporting(0);
+				}
+				else{
+					error_reporting(0);
+					header("location:index.php");
+					error_reporting(0);
+				}
+
+			}
+
+		}
 
 
 	#VISTA DE VENTAS
@@ -840,6 +1123,47 @@ class MvcController{
 			if($respuesta == "success"){
 				error_reporting(0);
 				header("location:index.php?action=ventas");
+				error_reporting(0);
+			}
+
+		}
+
+	}
+
+
+	#BORRAR MATERIAS DEL GRUPO
+	#------------------------------------
+	public function borrarMateriaGrupoController(){
+
+		if(isset($_GET["idBorrar"])){
+			//OBITNE ID DE LA FILA PARA BORRAR
+			$datosController = $_GET["idBorrar"];
+			//LLAMA AL METODO DE BORRAR VENTA
+			$respuesta = Datos::borrarMateriaGrupoModel($datosController, "grupo_materia");
+			//SI ES CORRECTO NOS REGRESA A LA VISTA DE VENTAS
+			if($respuesta == "success"){
+				error_reporting(0);
+				header("location:index.php?action=grupos");
+				error_reporting(0);
+			}
+
+		}
+
+	}
+
+	#BORRAR ALUMNOS DE LA MATERIA
+	#------------------------------------
+	public function borrarAlumnoMateriaController(){
+
+		if(isset($_GET["idBorrar"])){
+			//OBITNE ID DE LA FILA PARA BORRAR
+			$datosController = $_GET["idBorrar"];
+			//LLAMA AL METODO DE BORRAR VENTA
+			$respuesta = Datos::borrarAlumnoMateriaModel($datosController, "materia_alumno");
+			//SI ES CORRECTO NOS REGRESA A LA VISTA DE VENTAS
+			if($respuesta == "success"){
+				error_reporting(0);
+				header("location:index.php?action=grupos");
 				error_reporting(0);
 			}
 
