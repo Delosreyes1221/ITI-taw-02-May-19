@@ -399,7 +399,7 @@ public function borrarAlumnosTutoriaModel($datosModel, $tabla){
 	}
 
 
-	#EDITAR ALUMNOS
+	#EDITAR MATERIAS
 	#-------------------------------------
 
 	public static function editarMateriaModel($datosModel, $tabla){
@@ -414,7 +414,7 @@ public function borrarAlumnosTutoriaModel($datosModel, $tabla){
 
 	}
 
-	#ACTUALIZAR USUARIO
+	#ACTUALIZAR MATERIA
 	#-------------------------------------
 
 	public static function actualizarMateriaModel($datosModel, $tabla){
@@ -576,7 +576,7 @@ public function borrarAlumnosTutoriaModel($datosModel, $tabla){
 			$stmt->close();
 		}
 
-		#VISTA DE PROESORES PARA MOSTRAR EN LAS MTERIAS
+	#VISTA DE PROESORES PARA MOSTRAR EN LAS MTERIAS
 	#-------------------------------------
 
 	public static function vistaProfesoresModel($tabla){

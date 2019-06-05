@@ -5,7 +5,7 @@ class MvcController{
 	#LLAMADA A LA PLANTILLA
 	#-------------------------------------
 	#Permite la llamada al template de la pagina
-	public function pagina(){		
+	public function pagina(){
 		include "views/template.php";
 	}
 
@@ -13,7 +13,7 @@ class MvcController{
 	#-------------------------------------
 	#Permite controlar los enlaces que existen entre las vistas de la pagina, haciendo uso del modelo
 	public function enlacesPaginasController(){
-		if(isset( $_GET['action']))		
+		if(isset( $_GET['action']))
 			$enlaces = $_GET['action'];
 		else
 			$enlaces = "index";
@@ -36,13 +36,201 @@ class MvcController{
 					<li><a href="index.php?action=alumnos">Alumnos</a></li>
 					<li><a href="index.php?action=carreras">Carreras</a></li>
 					<li><a href="index.php?action=reportes">Reportes</a></li>
-					<li><a href="index.php?action=salir">Salir</a></li>';
+					<li><a href="index.php?action=salir">Salir</a></li>
+					<li><a href="index.php?action=materias">Materias</a></li>
+					<li><a href="index.php?action=grupos">Grupos</a></li>';
 			else
 				echo'
 					<li><a href="index.php?action=ingresar">Ingreso</a></li>
 					<li><a href="index.php?action=tutorias">Tutorias</a></li>
 					<li><a href="index.php?action=reportes">Reportes</a></li>
 					<li><a href="index.php?action=salir">Salir</a></li>';
+		}
+
+	}
+
+	//VISTA DE LOS GRUPOS
+	public function vistaGruposController(){
+		//TRAE TODOS LOS ALUMNOS
+		$respuesta = Datos::vistaGruposModel("grupos");
+
+		#El constructor foreach proporciona un modo sencillo de iterar sobre arrays. foreach funciona sólo sobre arrays y objetos, y emitirá un error al intentar usarlo con una variable de un tipo diferente de datos o una variable no inicializada.
+
+		//CICLO PARA MOSTRAR E ITERAR TODOS LOS VALORES EN FILAS DE UNA TABLA
+		foreach($respuesta as $row => $item){
+		echo'<tr>
+				<td>'.$item["id_grupo"].'</td>
+				<td>'.$item["nombre"].'</td>
+				<td align="center" ><a href="index.php?action=verMateriasGrupos&id='.$item["id_grupo"].'"><button type="button" class="btn btn-info">Ver materias</button></a></td>
+				<td align="center" ><a href="index.php?action=agregarMateriaGrupo&id='.$item["id_grupo"].'"><button type="button" class="btn btn-info">Agregar Materias</button></a></td>
+				<td align="center" ><a href="index.php?action=editarGrupos&id='.$item["id_grupo"].'"><button type="button" class="btn btn-info">Editar</button></a></td>
+				<td align="center" ><a href="index.php?action=grupos&idBorrar='.$item["id_grupo"].'"><button type="button" class="btn btn-danger">Borrar</button></a></td>
+			</tr>';
+
+		}
+
+	}
+
+	#BORRAR GRUPO
+	#------------------------------------
+	public function borrarGrupoController(){
+
+		if(isset($_GET["idBorrar"])){
+			//OBTIENE ID DEL REGISTRO
+			$datosController = $_GET["idBorrar"];
+			//LLAMA AL METODO PARA BORRAR UN USUARIO
+			$respuesta = Datos::borrarGrupoModel($datosController, "grupos");
+			//EN CASO DE SER CORRECTO REGRESA A LA VISTA DE USUARIOS
+			if($respuesta == "success"){
+				error_reporting(0);
+				header("location:index.php?action=grupos");
+				error_reporting(0);
+			}
+
+		}
+
+	}
+
+	///registrar uin alumno en una materia
+		public function registroAlumnosMateriasController(){
+
+			if(isset($_POST["alumnosD"])){
+				//GUARDAR ARRAY CON LOS DATOS DE LA VENTA
+				$datosController = array( "id_materia"=>$_POST['idmateria'],
+									"matricula"=>$_POST["alumnosD"]);
+				//LLAMA METODO DE REGISTRO DE LA VENTA
+				$respuesta = Datos::registroAlumnosMateriasModel($datosController, "materia_alumno");
+				//SI ES CORRECTO LLAMA LA ACTION OKVEN DE ENLACES
+				if($respuesta == "success"){
+					error_reporting(0);
+					header("location:index.php?action=okAlumnos");
+					error_reporting(0);
+				}
+				else{
+					error_reporting(0);
+					header("location:index.php");
+					error_reporting(0);
+				}
+
+			}
+
+		}
+
+		#EDITAR EDITAR MATERIAS
+	#------------------------------------
+	public function editarMateriaController(){
+		//OBTIENE ID DE LA FILA O REGISTRO A EDITAR
+		$datosController = $_GET["id"];
+		//MANDA COMO PARAMETRO ESOS DATOS Y LLAMA AL METODO EDITARUSUARIOMODEL
+		$respuesta = Datos::editarMateriaModel($datosController, "materias");
+		//GENERA LOS INPUT PARA EDITAR LOS VALORES DEL REGISTRO
+
+		echo'
+				<div class="row-spacing col-lg-12">
+					<div class="form-group col-lg-7">
+						<label>NOMBRE</label>
+					  <input type="hidden" value="'.$respuesta["id_materia"].'" class="form-control" name="idEditar">
+					</div>
+
+					<div class="form-group col-lg-7">
+					  <input type="text" value="'.$respuesta["nombreMateria"].'" class="form-control" name="nombreEditar">
+					</div>
+
+					<div class="form-group col-lg-7">
+						<label>PROFESOR ACTUAL</label>
+					  <input readonly type="text" value="'.$respuesta["nombre"].'" class="form-control" >
+					</div>';
+					echo '<div class="row-spacing col-lg-4">';
+
+					$respuesta2 = Datos::vistaProfesoresModel("maestros");
+					// SE MUESTRAN LOS PROFESORES AGREGADOS EN LA BASE DE DATOS
+					echo '<label class="labels">MAESTROS DISPONIBLES</label>';
+					echo '<select class="form-control" name="nombreProfesor">';
+
+					foreach($respuesta2 as $row => $item){
+							echo '<option value="'.$item['num_empleado'].'">'.$item['nombre'].'</option>';
+					}
+					echo '</select>';
+					echo '</div>';
+
+					echo
+					'<div class="row-spacing col-lg-12 mt-4">
+			 				<input type="submit" type="button" class="btn btn-success" value="Actualizar" style="width:100px;">
+					</div>';
+
+	}
+
+	#ACTUALIZAR MATERIA
+#------------------------------------
+public function actualizarMateriaController(){
+
+	if(isset($_POST["nombreProfesor"])){
+		//GUARDA EN UN ARRAY LOS VALORES PARA ACTUALIZAR LOS DATOS
+		$datosController = array("id_materia"=>$_POST["idEditar"],
+											"nombre"=>$_POST["nombreEditar"],
+											 "num_empleado"=>$_POST["nombreProfesor"]);
+		//LLAMA AL METODO DENTRO DEL MODELO DE ACTULAIZAR MATERIA
+		$respuesta = Datos::actualizarMateriaModel($datosController, "materias");
+		//SI ES CORRECTO MANDA ACTION CAMBIO A ENLACES
+		if($respuesta == "success"){
+//					echo  "<script> windows.location = 'index.php?action=usuarios'</script>";
+			error_reporting(0);
+			header("location:index.php?action=cambioMateria");
+			error_reporting(0);
+		}
+		//EN CASO DE ERROR MANDA UN ECHO CON MENSAJE ERROR
+		else{
+
+			echo "error";
+
+		}
+
+	}
+
+}
+
+#BORRAR MATERIAS
+#------------------------------------
+public function borrarMateriaController(){
+
+	if(isset($_GET["idBorrar"])){
+		//OBITNE ID DE LA FILA PARA BORRAR
+		$datosController = $_GET["idBorrar"];
+		//LLAMA AL METODO DE BORRAR VENTA
+		$respuesta = Datos::borrarMateriaModel($datosController, "materias");
+		//SI ES CORRECTO NOS REGRESA A LA VISTA DE VENTAS
+		if($respuesta == "success"){
+			error_reporting(0);
+			header("location:index.php?action=materias");
+			error_reporting(0);
+		}
+
+	}
+
+}
+
+
+
+	//VISTA DE LAS MATERIAS
+	public function vistaMateriasController(){
+		//TRAE TODOS LOS ALUMNOS
+		$respuesta = Datos::vistaMateriasModel("materias");
+
+		#El constructor foreach proporciona un modo sencillo de iterar sobre arrays. foreach funciona sólo sobre arrays y objetos, y emitirá un error al intentar usarlo con una variable de un tipo diferente de datos o una variable no inicializada.
+
+		//CICLO PARA MOSTRAR E ITERAR TODOS LOS VALORES EN FILAS DE UNA TABLA
+		foreach($respuesta as $row => $item){
+		echo'<tr>
+				<td>'.$item["id_materia"].'</td>
+				<td>'.$item["nombre"].'</td>
+				<td>'.$item["id_maestro"].'</td>
+				<td align="center" ><a href="index.php?action=verAlumnosMaterias&id='.$item["id_materia"].'"><button type="button" class="btn btn-info">Ver alumnos</button></a></td>
+				<td align="center" ><a href="index.php?action=agregarAlumnosMaterias&id='.$item["id_materia"].'"><button type="button" class="btn btn-info">Agregar alumnos</button></a></td>
+				<td align="center" ><a href="index.php?action=editarMateria&id='.$item["id_materia"].'"><button type="button" class="btn btn-info">Editar</button></a></td>
+				<td align="center" ><a href="index.php?action=materias&idBorrar='.$item["id_materia"].'"><button type="button" class="btn btn-danger">Borrar</button></a></td>
+
+			</tr>';
+
 		}
 
 	}
@@ -56,11 +244,11 @@ class MvcController{
 	public function ingresoMaestroController(){
 
 		if(isset($_POST["emailIngreso"])){
-			$datosController = array( "email"=>$_POST["emailIngreso"], 
+			$datosController = array( "email"=>$_POST["emailIngreso"],
 								      "password"=>$_POST["passwordIngreso"]);
 
 			$respuesta = Datos::ingresoMaestroModel($datosController, "maestros");
-			
+
 			//Valiación de la respuesta del modelo para ver si es un usuario correcto.
 			if($respuesta["email"] == $_POST["emailIngreso"] && $respuesta["password"] == $_POST["passwordIngreso"]){
 				session_start();
@@ -80,7 +268,7 @@ class MvcController{
 	#Permite hacer un registro de un maestro a en la bd.
 	public function registroMaestrosController(){
 		if(isset($_POST["usuarioRegistro"])){
-			$datosController = array( "num_empleado"=>$_POST["num_empleado"], 
+			$datosController = array( "num_empleado"=>$_POST["num_empleado"],
 								      "nombre"=>$_POST["nombre"],
 								      "email"=>$_POST["email"],
 								  	  "carrera"=>$_POST["carrera"]);
@@ -113,11 +301,11 @@ class MvcController{
 				<td><a href="index.php?action=editar_maestro&num_empleado='.$item["num_empleado"].'"><button class="small warning">Editar</button></a></td>
 				<td><a href="index.php?action=maestros&idBorrar='.$item["num_empleado"].'"><button onclick="wait();" class="small alert">Borrar</button></a></td>
 			</tr>';
-		echo ' 
+		echo '
 			<script type="text/javascript">
 		        function wait(){
 		          var r = confirm("¿Desea eliminar el usuario?");
-		          if (!r) 
+		          if (!r)
 		              event.preventDefault();
 		        }
 		    </script>';
@@ -137,7 +325,7 @@ class MvcController{
 		$st_carreras="";
 		for($i=0;$i<sizeof($respuesta_select);$i++)
 			$st_carreras=$st_carreras."<option value='".$respuesta_select[$i]['id']."'>".$respuesta_select[$i]['nombre']."</option>";
-		
+
 		echo'<input type="hidden" value="'.$respuesta["num_empleado"].'" name="num_empleado">
 			 <label for="nombre">Nombre:</label>
 			 <input type="text" value="'.$respuesta["nombre"].'" name="nombre" required>
@@ -154,7 +342,7 @@ class MvcController{
  			 <select name="nivel" id="nivel">
 			 	<option value="0">Maestro</option>
 			 	<option value="1">SuperAdmin</option>
-			 </select> 
+			 </select>
 			 <input type="submit" value="Actualizar">';
 		echo"
 		<script>
@@ -197,7 +385,7 @@ class MvcController{
 		if(isset($_GET["idBorrar"])){
 			$datosController = $_GET["idBorrar"];
 			$respuesta = Datos::borrarMaestroModel($datosController, "maestros");
-			
+
 			if($respuesta == "success"){
 				header("location:index.php?action=maestros");
 			}else{
@@ -213,7 +401,7 @@ class MvcController{
 	public function registroMaestroController(){
 
 		if(isset($_POST["num_empleado"])){
-			$datosController = array( "num_empleado"=>$_POST["num_empleado"], 
+			$datosController = array( "num_empleado"=>$_POST["num_empleado"],
 								      "nombre"=>$_POST["nombre"],
 								      "email"=>$_POST["email"],
 								      "password"=>$_POST["password"],
@@ -259,8 +447,8 @@ class MvcController{
 			 <select name="nivel">
 			 	<option value="0">Maestro</option>
 			 	<option value="1">SuperAdmin</option>
-			 </select> 
-			
+			 </select>
+
 			 <input type="submit" value="Registrar">';
 		echo"
 		<script>
@@ -294,6 +482,27 @@ class MvcController{
 		}
 	}
 
+
+	#BORRAR ALUMNOS DE LA MATERIA
+#------------------------------------
+public function borrarAlumnoMateriaController(){
+
+	if(isset($_GET["idBorrar"])){
+		//OBITNE ID DE LA FILA PARA BORRAR
+		$datosController = $_GET["idBorrar"];
+		//LLAMA AL METODO DE BORRAR VENTA
+		$respuesta = Datos::borrarAlumnoMateriaModel($datosController, "materia_alumno");
+		//SI ES CORRECTO NOS REGRESA A LA VISTA DE VENTAS
+		if($respuesta == "success"){
+			error_reporting(0);
+			header("location:index.php?action=materias");
+			error_reporting(0);
+		}
+
+	}
+
+}
+
 	#BORRAR ALUMNO
 	#------------------------------------
 	#Permite el borrado de un alumno de la base de datos.
@@ -318,7 +527,7 @@ class MvcController{
 	public function registroAlumnoController(){
 
 		if(isset($_POST["matricula"])){
-			$datosController = array( "matricula"=>$_POST["matricula"], 
+			$datosController = array( "matricula"=>$_POST["matricula"],
 								      "nombre"=>$_POST["nombre"],
 								      "id_carrera"=>$_POST["id_carrera"],
 								      "id_tutor"=>$_POST["id_tutor"]);
@@ -351,7 +560,7 @@ class MvcController{
 		$st_tutores="";
 		for($i=0;$i<sizeof($respuesta_tutores);$i++)
 			$st_tutores=$st_tutores."<option value='".$respuesta_tutores[$i]['num_empleado']."'>".$respuesta_tutores[$i]['nombre']."</option>";
-		
+
 		echo'<label for="matricula">Matricula:</label>
 			 <input type="text" name="matricula">
 			 <label for="nombre">Nombre:</label>
@@ -391,7 +600,7 @@ class MvcController{
 		$st_tutores="";
 		for($i=0;$i<sizeof($respuesta_tutores);$i++)
 			$st_tutores=$st_tutores."<option value='".$respuesta_tutores[$i]['num_empleado']."'>".$respuesta_tutores[$i]['nombre']."</option>";
-		
+
 		echo'<input type="hidden" value="'.$respuesta["matricula"].'" name="matricula">
 			 <label for="nombre">Nombre:</label>
 			 <input type="text" value="'.$respuesta["nombre"].'" name="nombre" required>
@@ -425,7 +634,7 @@ class MvcController{
 				                      "id_carrera"=>$_POST["carrera"],
 				                      "id_tutor"=>$_POST["tutor"]
 										);
-			
+
 			$respuesta = Datos::actualizarAlumnoModel($datosController, "alumnos");
 
 			if($respuesta == "success"){
@@ -465,7 +674,7 @@ class MvcController{
 			$datosController = $_GET["idBorrar"];
 
 			$respuesta = Datos::borrarCarreraModel($datosController, "carrera");
-			
+
 			if($respuesta == "success"){
 				header("location:index.php?action=carreras");
 			}else{
@@ -497,7 +706,7 @@ class MvcController{
 							          "nombre"=>$_POST["nombre"]
 										);
 			$respuesta = Datos::actualizarCarreraModel($datosController, "carrera");
-			
+
 
 			if($respuesta == "success"){
 				header("location:index.php?action=cambio_carrera");
@@ -519,14 +728,14 @@ class MvcController{
 								  );
 
 			$respuesta = Datos::registroCarreraModel($datosController, "carrera");
-			
+
 			if($respuesta == "success"){
 				header("location:index.php?action=ok_carrera");
 			}
 			else{
 				header("location:index.php");
 			}
-			
+
 		}
 
 	}
@@ -551,7 +760,7 @@ class MvcController{
 		if($_COOKIE['nivel']==1)
 			$respuesta = Datos::vistaTutoriasModel("sesion_tutoria");
 		else
-			$respuesta = Datos::vistaTutoriasNivelModel("sesion_tutoria",$_SESSION["num_empleado"]);		
+			$respuesta = Datos::vistaTutoriasNivelModel("sesion_tutoria",$_SESSION["num_empleado"]);
 		foreach($respuesta as $row => $item){
 		echo'<tr>
 				<td>'.$item["id"].'</td>
@@ -574,7 +783,7 @@ class MvcController{
 			$datosController = $_GET["idBorrar"];
 			$respuesta = Datos::borrarAlumnosTutoriaModel($datosController, "sesion_alumnos");
 			$respuesta = Datos::borrarTutoriaModel($datosController, "sesion_tutoria");
-			
+
 			if($respuesta == "success"){
 				header("location:index.php?action=tutorias");
 			}
@@ -584,7 +793,7 @@ class MvcController{
 	#REGISTRAR TUTORIAS
 	#------------------------------------
 	#Permite el registro de una tutoria en la base de datos
-	public function registroTutoriaController(){	  
+	public function registroTutoriaController(){
 		if(isset($_POST["fecha"])){
 			$datosController = array(
 								      "hora"=>$_POST["hora"],
@@ -595,7 +804,7 @@ class MvcController{
 								  );
 
 			$respuesta = Datos::registroTutoriaModel($datosController, "sesion_tutoria");
-			
+
 			if(isset($_POST['hid'])){
 				$data = $_POST['hid'];
 
@@ -603,16 +812,16 @@ class MvcController{
 
 				$respuesta = Datos::registroAlumnosTutoriaModel($data, $id_sesion[0], "sesion_alumnos");
 		  	}
-		  	
+
 			if($respuesta == "success"){
 				header("location:index.php?action=ok_tutoria");
 			}
 			else{
 				header("location:index.php");
 			}
-		
+
 		}
-		
+
 	}
 
 	#REGISTRO BASE DE TUTORIAS
@@ -648,7 +857,7 @@ class MvcController{
 						<label for="Tema">Tema:</label>
 						<input type="text" name="tema" required>
 						<button class="small success" onclick="sendData();" type="submit">Registrar</button>
-						
+
 					</td>
 					<td>
 						<h4>Alumnos en la tutoria</h4>
@@ -688,7 +897,7 @@ class MvcController{
 				}
 
 				function addAlumno(){
-					
+
 					var select = document.getElementById("alumno");
 					var flag=false;
 					for(var i=0;i<alumnos.length;i++){
@@ -701,7 +910,7 @@ class MvcController{
 					if(!flag){
 						alumnos.push([select.options[select.selectedIndex].value,select.options[select.selectedIndex].text]);
 						send_alumnos.push([select.options[select.selectedIndex].value]);
-						updateTable();						
+						updateTable();
 					}else{
 						alert("Alumno ya Agregado");
 					}
@@ -728,7 +937,7 @@ class MvcController{
 
 		$datosController = $_GET["id"];
 		$respuesta = Datos::editarTutoriaModel($datosController, "sesion_tutoria");
-		
+
 		$respuesta_alumnos = Datos::obtenerAlumnosModel("alumnos");
 		$respuesta_alumnosTutoria = Datos::obtenerAlumnosTutoriaModel($datosController,"sesion_alumnos");
 
@@ -806,7 +1015,7 @@ class MvcController{
 			}
 
 			function addAlumno(){
-				
+
 				var select = document.getElementById("alumno");
 				var flag=false;
 				for(var i=0;i<alumnos.length;i++){
@@ -819,7 +1028,7 @@ class MvcController{
 				if(!flag){
 					alumnos.push([select.options[select.selectedIndex].value,select.options[select.selectedIndex].text]);
 					send_alumnos.push([select.options[select.selectedIndex].value]);
-					updateTable();						
+					updateTable();
 				}else{
 					alert("Alumno ya Agregado");
 				}
@@ -855,12 +1064,12 @@ class MvcController{
 			$respuesta = Datos::actualizarTutoriaModel($datosController, "sesion_tutoria");
 
 			$respuesta = Datos::borrarAlumnosTutoriaModel($_GET["id"], "sesion_alumnos");
-			
+
 			$data = $_POST['hid'];
 
 			$respuesta = Datos::registroAlumnosTutoriaModel($data, $_GET["id"], "sesion_alumnos");
-		  	
-			
+
+
 
 			if($respuesta == "success"){
 				header("location:index.php?action=cambio_tutoria");
@@ -893,7 +1102,7 @@ class MvcController{
 		echo'<script>
 				$(document).ready( function () {
 				    $("#table_maestros").DataTable();
-				} );		
+				} );
 			</script>';
 
 	}
@@ -919,7 +1128,7 @@ class MvcController{
 		echo'<script>
 				$(document).ready( function () {
 				    $("#table_alumnos").DataTable();
-				} );		
+				} );
 			</script>';
 	}
 
@@ -930,7 +1139,7 @@ class MvcController{
 		if($_COOKIE['nivel']==1)
 			$respuesta = Datos::vistaTutoriasModel("sesion_tutoria");
 		else
-			$respuesta = Datos::vistaTutoriasNivelModel("sesion_tutoria",$_SESSION["num_empleado"]);		
+			$respuesta = Datos::vistaTutoriasNivelModel("sesion_tutoria",$_SESSION["num_empleado"]);
 		foreach($respuesta as $row => $item){
 		echo'<tr>
 				<td>'.$item["id"].'</td>
@@ -945,7 +1154,7 @@ class MvcController{
 		echo'<script>
 				$(document).ready( function () {
 				    $("#table_tutorias").DataTable();
-				} );		
+				} );
 			</script>';
 	}
 }

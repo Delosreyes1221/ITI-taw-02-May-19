@@ -11,7 +11,7 @@ class Datos extends Conexion{
 	#INGRESO MAESTRO
 	#-------------------------------------
 	#Obtiene el email, contrasena, numero de empleado y nivel de los maestros.
-	public function ingresoMaestroModel($datosModel, $tabla){
+	public static function ingresoMaestroModel($datosModel, $tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT email, password, num_empleado, nivel FROM $tabla WHERE email = :email");
 		$stmt->bindParam(":email", $datosModel["email"], PDO::PARAM_STR);
@@ -24,7 +24,7 @@ class Datos extends Conexion{
 	#VISTA MAESTROS MODEL
 	#-------------------------------------
 	#Obtiene los datos de todos los maestros
-	public function vistaMaestrosModel($tabla){
+	public static function vistaMaestrosModel($tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT m.num_empleado as num_empleado, m.nombre as nombre, m.email as email, c.nombre as nombre_carrera, m.nivel as nivel FROM $tabla as m inner join carrera as c on m.id_carrera=c.id");
 		$stmt->execute();
@@ -38,7 +38,7 @@ class Datos extends Conexion{
 	#EDITAR MAESTRO
 	#-------------------------------------
 	#Se encarga de obtener los valores actuales de cierto empleado
-	public function editarMaestroModel($datosModel, $tabla){
+	public static function editarMaestroModel($datosModel, $tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT num_empleado, nombre, email, password, id_carrera, nivel FROM $tabla WHERE num_empleado = :num_empleado");
 		$stmt->bindParam(":num_empleado", $datosModel, PDO::PARAM_INT);
@@ -49,10 +49,139 @@ class Datos extends Conexion{
 		$stmt->close();
 	}
 
+	///REGISTRAR UN ALUMNO EN UNA MATERIA
+	  public static function	registroAlumnosMateriasModel($datosModel, $tabla){
+			#prepare() Prepara una sentencia SQL para ser ejecutada por el método PDOStatement::execute(). La sentencia SQL puede contener cero o más marcadores de parámetros con nombre (:name) o signos de interrogación (?) por los cuales los valores reales serán sustituidos cuando la sentencia sea ejecutada. Ayuda a prevenir inyecciones SQL eliminando la necesidad de entrecomillar manualmente los parámetros.
+
+			//preparamos la conexion para ejecutar la sentencia sql
+			$stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (id_materia, id_alumno) VALUES (:id_materia,:id_alumno)");
+
+			#bindParam() Vincula una variable de PHP a un parámetro de sustitución con nombre o de signo de interrogación correspondiente de la sentencia SQL que fue usada para preparar la sentencia.
+
+			//vincula las variables para la sentencia
+			$stmt->bindParam(":id_materia", $datosModel["id_materia"], PDO::PARAM_STR);
+			$stmt->bindParam(":id_alumno", $datosModel["matricula"], PDO::PARAM_STR);
+
+
+			//ejecucion de la sentencia
+			if($stmt->execute()){
+				return "success";
+			}else{
+				return "error";
+			}
+			$stmt->close();
+		}
+
+#EDITAR MATERIAS
+#-------------------------------------
+
+public static function editarMateriaModel($datosModel, $tabla){
+//PREPARA PARA OBTENER TODOS LOS DATOS DE LA TABLA DE USUARIOS PARA EDITAR UN REGISTRO
+	$stmt = Conexion::conectar()->prepare("SELECT m.id_materia, m.nombre as nombreMateria, ma.nombre FROM materias m INNER JOIN maestros ma ON m.id_maestro = ma.num_empleado WHERE id_materia = :id");
+	$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+	$stmt->execute();
+
+	return $stmt->fetch();
+
+	$stmt->close();
+
+}
+
+#VISTA DE PROESORES PARA MOSTRAR EN LAS MTERIAS
+	#-------------------------------------
+
+	public static function vistaProfesoresModel($tabla){
+		//PREPARAMOS LA SENTENCIA PARA VER LOS PRODUCTOS
+		$stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla");
+		//EJECUTAR SENTENCIA
+		$stmt->execute();
+
+		#fetchAll(): Obtiene todas las filas de un conjunto de resultados asociado al objeto PDOStatement.
+		return $stmt->fetchAll();
+
+		$stmt->close();
+
+	}
+
+	#VISTA GRUPOS
+#-------------------------------------
+
+public static function vistaGruposModel($tabla){
+	//PREPARA PARA OBTENER TODOS LOS DATOS DE LA TABLA DE USUARIOS
+	$stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla");
+	$stmt->execute();
+
+	#fetchAll(): Obtiene todas las filas de un conjunto de resultados asociado al objeto PDOStatement.
+	return $stmt->fetchAll();
+
+	$stmt->close();
+
+}
+
+#BORRAR GRUPOS
+#------------------------------------
+public static function borrarGrupoModel($datosModel, $tabla){
+	//PREPARA SENTENCIA PARA BORRAR REGISTRO DE USUARIO
+	$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_grupo = :id");
+	$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+
+	if($stmt->execute()){
+		return "success";
+	}
+	else{
+		return "error";
+	}
+
+	$stmt->close();
+
+}
+
+
+	#BORRAR MATERIA
+	#------------------------------------
+	public static function borrarMateriaModel($datosModel, $tabla){
+		//PREPARA SENTENCIA PARA BORRAR REGISTRO DE USUARIO
+		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_materia = :id");
+		$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+
+		if($stmt->execute()){
+			return "success";
+		}
+		else{
+			return "error";
+		}
+
+		$stmt->close();
+
+	}
+
+
+	#ACTUALIZAR MATERIA
+#-------------------------------------
+
+public static function actualizarMateriaModel($datosModel, $tabla){
+	//PREPARA PARA ACTUALIZAR LOS DATOS DE UN REGISTRO DE LA TABLA USUARIOS
+	$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET nombre = :nombre, id_maestro = :num_empleado  WHERE id_materia = :id");
+	//asigna a los valores a las variables
+	$stmt->bindParam(":nombre", $datosModel["nombre"], PDO::PARAM_STR);
+  $stmt->bindParam(":num_empleado", $datosModel["num_empleado"], PDO::PARAM_STR);
+	$stmt->bindParam(":id", $datosModel["id_materia"], PDO::PARAM_INT);
+
+	if($stmt->execute()){
+		return "success";
+	}
+	else{
+		return "error";
+	}
+
+	$stmt->close();
+
+}
+
 	#OBTENER CARRERAS
 	#-------------------------------------
 	#Obtiene las carreras de toda la tabla
-	public function obtenerCarrerasModel($tabla){
+	public static function obtenerCarrerasModel($tabla){
 		$stmt = Conexion::conectar()->prepare("SELECT id, nombre FROM $tabla");
 		$stmt->execute();
 
@@ -62,7 +191,7 @@ class Datos extends Conexion{
 	#OBTENER TUTORES
 	#-------------------------------------
 	#Obtiene las tutores de toda la tabla
-	public function obtenerTutoresModel($tabla){
+	public static function obtenerTutoresModel($tabla){
 		$stmt = Conexion::conectar()->prepare("SELECT num_empleado, nombre FROM $tabla");
 		$stmt->execute();
 
@@ -82,7 +211,7 @@ class Datos extends Conexion{
 	#OBTENER ALUMNOS NIVEL
 	#-------------------------------------
 	#Obtiene los alumnos que tienen a cierto tutor
-	public function obtenerAlumnosNivelModel($tabla, $id){
+	public static function obtenerAlumnosNivelModel($tabla, $id){
 		$stmt = Conexion::conectar()->prepare("SELECT matricula, nombre FROM $tabla WHERE id_tutor=:id_tutor");
 		$stmt->bindParam(":id_tutor", $id, PDO::PARAM_INT);
 		$stmt->execute();
@@ -93,7 +222,7 @@ class Datos extends Conexion{
 	#ACTUALIZAR MAESTRO
 	#-------------------------------------
 	#Permite realizar un update a la tabla de maestros
-	public function actualizarMaestroModel($datosModel, $tabla){
+	public static function actualizarMaestroModel($datosModel, $tabla){
 
 		var_dump($datosModel);
 		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET nombre = :nombre, email = :email, password = :password, id_carrera = :id_carrera WHERE num_empleado = :num_empleado");
@@ -114,7 +243,7 @@ class Datos extends Conexion{
 
 	#BORRAR MAESTRO
 	#------------------------------------
-	public function borrarMaestroModel($datosModel, $tabla){
+	public static function borrarMaestroModel($datosModel, $tabla){
 		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE num_empleado = :num_empleado");
 		$stmt->bindParam(":num_empleado", $datosModel, PDO::PARAM_STR);
 
@@ -129,7 +258,7 @@ class Datos extends Conexion{
 
 	#REGISTRO DE MAESTROS
 	#-------------------------------------
-	public function registroMaestroModel($datosModel, $tabla){
+	public static function registroMaestroModel($datosModel, $tabla){
 
 		$stmt1 = Conexion::conectar()->prepare("INSERT INTO $tabla (num_empleado, nombre, email, password, id_carrera, nivel) VALUES (:num_empleado,:nombre,:email,:password,:id_carrera,:nivel)");
 
@@ -153,7 +282,7 @@ class Datos extends Conexion{
 
 	#REGISTRO DE ALUMNOS
 	#-------------------------------------
-	public function registroAlumnoModel($datosModel, $tabla){
+	public static function registroAlumnoModel($datosModel, $tabla){
 
 		$stmt1 = Conexion::conectar()->prepare("INSERT INTO $tabla (matricula, nombre, id_carrera, id_tutor) VALUES (:matricula,:nombre,:id_carrera,:id_tutor)");
 
@@ -175,7 +304,7 @@ class Datos extends Conexion{
 
 	#VISTA ALUMNOS
 	#-------------------------------------
-	public function vistaAlumnoModel($tabla){
+	public static function vistaAlumnoModel($tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT a.matricula as matricula, a.nombre as nombre, c.nombre as carrera, m.nombre as tutor from $tabla as a inner join carrera as c on c.id=a.id_carrera INNER JOIN maestros as m on m.num_empleado=a.id_tutor");
 		$stmt->execute();
@@ -187,9 +316,42 @@ class Datos extends Conexion{
 
 	}
 
+	public static function vistaAlumnosMateriasModel($datosModel, $tabla){
+	//PREPARAMOS LA SENTENCIA PARA VER LOS PRODUCTOS
+	$stmt = Conexion::conectar()->prepare("SELECT ma.id, a.nombre FROM $tabla ma INNER JOIN alumnos a ON ma.id_alumno = a.matricula WHERE ma.id_materia = :id");
+	//EJECUTAR SENTENCIA
+
+	$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+	$stmt->execute();
+
+	#fetchAll(): Obtiene todas las filas de un conjunto de resultados asociado al objeto PDOStatement.
+	return $stmt->fetchAll();
+
+	$stmt->close();
+
+}
+
+#BORRAR MATERIA DEL GRUPO
+#------------------------------------
+public static function borrarAlumnoMateriaModel($datosModel, $tabla){
+	//PREPARA SENTENCIA PARA BORRAR REGISTRO DE USUARIO
+	$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id = :id");
+	$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
+
+	if($stmt->execute()){
+		return "success";
+	}
+	else{
+		return "error";
+	}
+
+	$stmt->close();
+
+}
+
 	#EDICION DE ALUMNOS
 	#-------------------------------------
-	public function editarAlumnoModel($datosModel, $tabla){
+	public static function editarAlumnoModel($datosModel, $tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT matricula, nombre, id_carrera, id_tutor FROM $tabla WHERE matricula = :matricula");
 		$stmt->bindParam(":matricula", $datosModel, PDO::PARAM_STR);
@@ -203,7 +365,7 @@ class Datos extends Conexion{
 
 	#ACTUALIZACION DE ALUMNOS
 	#-------------------------------------
-	public function actualizarAlumnoModel($datosModel, $tabla){
+	public static function actualizarAlumnoModel($datosModel, $tabla){
 		var_dump($datosModel);
 		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET nombre = :nombre, id_carrera = :id_carrera, id_tutor = :id_tutor WHERE matricula = :matricula");
 
@@ -222,7 +384,7 @@ class Datos extends Conexion{
 
 	#BORRAR USUARIO
 	#------------------------------------
-	public function borrarAlumnoModel($datosModel, $tabla){
+	public static function borrarAlumnoModel($datosModel, $tabla){
 		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE matricula = :matricula");
 		$stmt->bindParam(":matricula", $datosModel, PDO::PARAM_STR);
 
@@ -238,7 +400,7 @@ class Datos extends Conexion{
 
 	#VISTA CARRERA
 	#-------------------------------------
-	public function vistaCarreraModel($tabla){
+	public static function vistaCarreraModel($tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT id, nombre from $tabla");
 		$stmt->execute();
@@ -252,7 +414,7 @@ class Datos extends Conexion{
 
 	#REGISTRO DE CARRERAS
 	#-------------------------------------
-	public function registroCarreraModel($datosModel, $tabla){
+	public static function registroCarreraModel($datosModel, $tabla){
 
 		$stmt1 = Conexion::conectar()->prepare("INSERT INTO $tabla (nombre) VALUES (:nombre)");
 
@@ -271,7 +433,7 @@ class Datos extends Conexion{
 
 	#EDICION DE LA CARRERA
 	#-------------------------------------
-	public function editarCarreraModel($datosModel, $tabla){
+	public static function editarCarreraModel($datosModel, $tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT id, nombre FROM $tabla WHERE id = :id");
 		$stmt->bindParam(":id", $datosModel, PDO::PARAM_STR);
@@ -285,7 +447,7 @@ class Datos extends Conexion{
 
 	#ACTUALIZACION DE LA CARRERA
 	#-------------------------------------
-	public function actualizarCarreraModel($datosModel, $tabla){
+	public static function actualizarCarreraModel($datosModel, $tabla){
 		var_dump($datosModel);
 		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET nombre = :nombre WHERE id = :id");
 
@@ -303,7 +465,7 @@ class Datos extends Conexion{
 
 	#BORRAR TODO SOBRE LA CARRERA
 	#------------------------------------
-	public function borrarCarreraModel($datosModel, $tabla){
+	public static function borrarCarreraModel($datosModel, $tabla){
 		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id = :id");
 		$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
 
@@ -329,10 +491,25 @@ class Datos extends Conexion{
 
 	}
 
+	#VISTA MATERIAS
+	#-------------------------------------
+
+	public static function vistaMateriasModel($tabla){
+		//PREPARA PARA OBTENER TODOS LOS DATOS DE LA TABLA DE USUARIOS
+		$stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla");
+		$stmt->execute();
+
+		#fetchAll(): Obtiene todas las filas de un conjunto de resultados asociado al objeto PDOStatement.
+		return $stmt->fetchAll();
+
+		$stmt->close();
+
+	}
+
 	#VISTA DE LAS TUTORIAS POR NIVEL
 	#-------------------------------------
 	#Muestra solo las tutorias que ha hecho el empleado, con el numero de maestro ingresado
-	public function vistaTutoriasNivelModel($tabla, $id){
+	public static function vistaTutoriasNivelModel($tabla, $id){
 
 		$stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla where num_maestro=:num_maestro");
 		$stmt->bindParam(":num_maestro", $id, PDO::PARAM_STR);
@@ -346,7 +523,7 @@ class Datos extends Conexion{
 
 	#BORRAR DE LAS TUTORIAS
 	#-------------------------------------
-	public function borrarTutoriaModel($datosModel, $tabla){
+	public static function borrarTutoriaModel($datosModel, $tabla){
 		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id = :id");
 		$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
 
@@ -361,7 +538,7 @@ class Datos extends Conexion{
 
 	#BORRAR ALUMNOS TUTORIAS
 	#-------------------------------------
-	public function borrarAlumnosTutoriaModel($datosModel, $tabla){
+	public static function borrarAlumnosTutoriaModel($datosModel, $tabla){
 		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id_sesion = :id");
 		$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
 
@@ -376,7 +553,7 @@ class Datos extends Conexion{
 
 	#REGISTRO DE TUTORIAS
 	#-------------------------------------
-	public function registroTutoriaModel($datosModel, $tabla){
+	public static function registroTutoriaModel($datosModel, $tabla){
 
 		$stmt1 = Conexion::conectar()->prepare("INSERT INTO $tabla (fecha, hora, tipo, tema, num_maestro) VALUES (:fecha,:hora,:tipo,:tema,:num_maestro)");
 
@@ -401,7 +578,7 @@ class Datos extends Conexion{
 
 	#OBTENER ULTIMA TUTORIA
 	#-------------------------------------
-	public function ObtenerLastTutoria($tabla){
+	public static function ObtenerLastTutoria($tabla){
 		$stmt = Conexion::conectar()->prepare("SELECT max(id) FROM $tabla");
 		$stmt->execute();
 
@@ -412,7 +589,7 @@ class Datos extends Conexion{
 
 	#REGISTRO DE LOS ALUMNOS
 	#-------------------------------------
-	public function registroAlumnosTutoriaModel($datosModel, $id_sesion, $tabla){
+	public static function registroAlumnosTutoriaModel($datosModel, $id_sesion, $tabla){
 		$datosModel_array =  explode(",",$datosModel);
 
 		for($i=0;$i<sizeof($datosModel_array);$i++){
@@ -433,7 +610,7 @@ class Datos extends Conexion{
 
 	#EDICION DE LA INTERFAZ
 	#-------------------------------------
-	public function editarTutoriaModel($datosModel, $tabla){
+	public static function editarTutoriaModel($datosModel, $tabla){
 
 		$stmt = Conexion::conectar()->prepare("SELECT id, hora, fecha, tipo, tema, num_maestro FROM $tabla WHERE id = :id");
 		$stmt->bindParam(":id", $datosModel, PDO::PARAM_INT);
@@ -460,7 +637,7 @@ class Datos extends Conexion{
 
 	#ACTUALIZA EL TUTOR MUCHO MAS.
 	#-------------------------------------
-	public function actualizarTutoriaModel($datosModel, $tabla){
+	public static function actualizarTutoriaModel($datosModel, $tabla){
 
 		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET fecha = :fecha, hora = :hora, tipo = :tipo, tema = :tema WHERE id = :id");
 

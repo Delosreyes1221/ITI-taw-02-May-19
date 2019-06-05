@@ -236,7 +236,7 @@ class MvcController{
 				<tr>
 					<td>
 						<h4>Detalles en la tutoria</h4>
-						
+
 						<label for="fecha">Fecha:</label>
 						<input type="date" name="fecha" required>
 						<label for="hora">Hora:</label>
@@ -613,7 +613,7 @@ public function borrarTutoriaController(){
 
 	}
 
-	#EDITAR ALUMNOS
+	#EDITAR EDITAR MATERIAS
 	#------------------------------------
 	public function editarMateriaController(){
 		//OBTIENE ID DE LA FILA O REGISTRO A EDITAR
